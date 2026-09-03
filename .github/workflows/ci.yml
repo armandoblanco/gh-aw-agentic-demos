@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      force_fail:
+        description: "Forzar un fallo para probar la Demo 3 (Investigador de Fallos de CI)"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validar estructura del repositorio
+        run: |
+          echo "Validando que existan los workflows de demo..."
+          test -f .github/workflows/demo-1-reporte-diario.md
+          test -f .github/workflows/demo-2-triage-issues.md
+          test -f .github/workflows/demo-3-ci-doctor.md
+          echo "OK ✅"
+
+      - name: Fallo simulado (solo si force_fail=true)
+        if: ${{ inputs.force_fail == true }}
+        run: |
+          echo "❌ Fallo simulado a propósito para disparar la Demo 3."
+          echo "Esto emula un error real de build/test para que 'gh-aw' lo investigue."
+          exit 1
