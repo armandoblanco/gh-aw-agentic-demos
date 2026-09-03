@@ -45,6 +45,42 @@ router.get("/:id", (req, res) => {
   return res.json(loan);
 });
 
+// PATCH /api/loans/:id/approve - aprueba una solicitud pendiente
+router.patch("/:id/approve", (req, res) => {
+  const loan = store.get(req.params.id);
+  if (!loan) {
+    return res.status(404).json({ error: "Solicitud de préstamo no encontrada" });
+  }
+  if (loan.status !== LOAN_STATUS.PENDING_APPROVAL) {
+    return res.status(409).json({
+      error: `No se puede aprobar una solicitud en estado ${loan.status}`,
+    });
+  }
+  const updated = store.updateStatus(req.params.id, LOAN_STATUS.APPROVED, {
+    approvedAt: new Date().toISOString(),
+  });
+  return res.json(updated);
+});
+
+// PATCH /api/loans/:id/reject - rechaza una solicitud pendiente
+router.patch("/:id/reject", (req, res) => {
+  const loan = store.get(req.params.id);
+  if (!loan) {
+    return res.status(404).json({ error: "Solicitud de préstamo no encontrada" });
+  }
+  if (loan.status !== LOAN_STATUS.PENDING_APPROVAL) {
+    return res.status(409).json({
+      error: `No se puede rechazar una solicitud en estado ${loan.status}`,
+    });
+  }
+  const { reason } = req.body || {};
+  const updated = store.updateStatus(req.params.id, LOAN_STATUS.REJECTED, {
+    rejectedAt: new Date().toISOString(),
+    reason: reason || "Sin motivo especificado",
+  });
+  return res.json(updated);
+});
+
 module.exports = router;
 module.exports.store = store;
 module.exports.LOAN_STATUS = LOAN_STATUS;
