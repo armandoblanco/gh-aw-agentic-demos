@@ -21,7 +21,7 @@ permissions:
 safe-outputs:
   create-issue:
     title-prefix: "[Fallo de CI] "
-    labels: [ci, demo-gh-aw]
+    labels: [ci, demo-gh-aw, demo-3-ci-doctor]
   add-comment:
     max: 1
 

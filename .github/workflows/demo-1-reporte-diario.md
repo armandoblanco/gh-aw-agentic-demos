@@ -22,7 +22,7 @@ tools:
 safe-outputs:
   create-issue:
     title-prefix: "[Reporte Diario] "
-    labels: [reporte, demo-gh-aw]
+    labels: [reporte, demo-gh-aw, demo-1-reporte]
     close-older-issues: true
 
 timeout-minutes: 10
