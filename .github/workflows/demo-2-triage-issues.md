@@ -22,7 +22,8 @@ safe-outputs:
       - needs-info
       - duplicate
       - invalid
-    max: 3
+      - demo-2-triage
+    max: 4
   add-comment:
     max: 1
 
@@ -34,6 +35,11 @@ timeout-minutes: 10
 Analiza el issue #${{ github.event.issue.number }} y ayuda a los maintainers a
 entenderlo y enrutarlo rápido. Basa cada conclusión en el issue, su discusión y
 el contexto del repositorio. **No inventes información faltante.**
+
+> ⚙️ **Etiqueta de trazabilidad de la demo**: además de cualquier etiqueta de
+> clasificación, **siempre** aplica la etiqueta `demo-2-triage` a este issue
+> para identificar que fue procesado por esta demo. Esta etiqueta es
+> independiente de tu análisis de clasificación (tipo, prioridad, duplicados).
 
 ## 1. Reunir contexto
 
