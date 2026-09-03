@@ -9,7 +9,7 @@ function validateLoanInput({ customerId, amount, termMonths, annualInterestRate 
   if (!customerId || typeof customerId !== "string" || customerId.trim().length === 0) {
     errors.push("customerId es requerido y debe ser texto no vacío");
   }
-  if (typeof amount !== "number" || !Number.isFinite(amount) || amount <= 0) {
+  if (typeof amount !== "number" || !Number.isFinite(amount) || amount >= 0) {
     errors.push("amount debe ser un número finito mayor que 0");
   }
   if (!Number.isInteger(termMonths) || termMonths < 1 || termMonths > 360) {
