@@ -35,12 +35,46 @@ Por defecto, las 3 demos usan **GitHub Copilot** como motor de IA (es el motor p
 │   ├── demo-1-reporte-diario.md   # Demo 1 (fuente agéntica)
 │   ├── demo-2-triage-issues.md    # Demo 2 (fuente agéntica)
 │   ├── demo-3-ci-doctor.md        # Demo 3 (fuente agéntica)
-│   └── ci.yml                     # Workflow de CI normal (dispara la Demo 3 al fallar)
+│   └── ci.yml                     # Workflow de CI real (corre las pruebas de loans-api)
+├── apps/loans-api/                # App sintética: API REST de préstamos bancarios (Node + Express + Jest)
 ├── scripts/
 │   ├── instalar-y-compilar.sh     # Instala gh-aw y compila los .md a .lock.yml
 │   └── probar-demo.sh             # Dispara cada demo manualmente para probarla
 └── README.md
 ```
+
+## App sintética: `loans-api`
+
+Para darle a las 3 demos actividad realista sobre la que trabajar, el repositorio
+incluye una pequeña **API REST de préstamos bancarios** (datos y código
+100% sintéticos, sin conexión a ningún sistema real): creación de solicitudes,
+flujo de aprobación/rechazo y cálculo de tabla de amortización.
+
+Ver el detalle completo en [`apps/loans-api/README.md`](apps/loans-api/README.md).
+
+### Historial de ramas (siguiendo GitFlow)
+
+El repositorio simula un ciclo de desarrollo completo con las convenciones de
+**GitFlow**:
+
+| Rama | Tipo | Destino | Estado |
+|---|---|---|---|
+| `develop` | integración | — | activa |
+| `feature/loan-application` | feature | `develop` | mergeada (PR #6) |
+| `feature/loan-approval-workflow` | feature | `develop` | mergeada (PR #7) |
+| `feature/interest-calculator` | feature | `develop` | **PR abierto** (#8, en revisión) |
+| `release/1.0.0` | release | `main` | mergeada y tag `v1.0.0` (PR #9) |
+| `hotfix/1.0.1-validacion-monto` | hotfix | `main` | mergeada y tag `v1.0.1` (PR #10), back-merge a `develop` |
+| `chore/ci-loans-api-tests` | chore | `main` | mergeada (PR #11) |
+
+Cada release y hotfix fue etiquetado (`v1.0.0`, `v1.0.1`) y back-mergeado a
+`develop`, siguiendo el flujo estándar de GitFlow.
+
+### Issues sintéticos
+
+También se crearon issues de ejemplo (bugs, features, preguntas, un caso de
+spam y un posible duplicado) para que la **Demo 2 (Bot de Triage)** tenga
+contenido real sobre el cual clasificar y responder.
 
 Los archivos `.lock.yml` (generados por `gh aw compile`) **no están commiteados** porque se regeneran localmente y pueden cambiar de versión en versión de `gh-aw`. Los generas tú en el primer paso de instalación (abajo).
 
