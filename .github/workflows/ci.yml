@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
   workflow_dispatch:
     inputs:
@@ -15,16 +15,30 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/loans-api
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Instalar dependencias (loans-api)
+        run: npm install
+
+      - name: Ejecutar pruebas unitarias (loans-api)
+        run: npm test
+
       - name: Validar estructura del repositorio
         run: |
           echo "Validando que existan los workflows de demo..."
-          test -f .github/workflows/demo-1-reporte-diario.md
-          test -f .github/workflows/demo-2-triage-issues.md
-          test -f .github/workflows/demo-3-ci-doctor.md
+          test -f ../../.github/workflows/demo-1-reporte-diario.md
+          test -f ../../.github/workflows/demo-2-triage-issues.md
+          test -f ../../.github/workflows/demo-3-ci-doctor.md
           echo "OK ✅"
 
       - name: Fallo simulado (solo si force_fail=true)
