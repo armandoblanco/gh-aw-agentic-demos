@@ -1,5 +1,6 @@
 const express = require("express");
 const { LoanStore, LOAN_STATUS } = require("../models/loanStore");
+const { buildAmortizationSchedule } = require("../services/interestCalculator");
 
 const router = express.Router();
 const store = new LoanStore();
@@ -79,6 +80,20 @@ router.patch("/:id/reject", (req, res) => {
     reason: reason || "Sin motivo especificado",
   });
   return res.json(updated);
+});
+
+// GET /api/loans/:id/schedule - calcula la tabla de amortización
+router.get("/:id/schedule", (req, res) => {
+  const loan = store.get(req.params.id);
+  if (!loan) {
+    return res.status(404).json({ error: "Solicitud de préstamo no encontrada" });
+  }
+  const { monthlyPayment, schedule } = buildAmortizationSchedule(
+    loan.amount,
+    loan.termMonths,
+    loan.annualInterestRate
+  );
+  return res.json({ loanId: loan.id, monthlyPayment, schedule });
 });
 
 module.exports = router;
