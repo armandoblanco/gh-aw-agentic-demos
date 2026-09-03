@@ -41,6 +41,20 @@ describe("Loans API — creación y consulta de solicitudes", () => {
     );
   });
 
+  test("POST /api/loans rechaza un customerId vacío o solo espacios", async () => {
+    const res = await request(app).post("/api/loans").send({
+      customerId: "   ",
+      amount: 1000,
+      termMonths: 12,
+      annualInterestRate: 0.15,
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.errors).toEqual(
+      expect.arrayContaining([expect.stringContaining("customerId")])
+    );
+  });
+
   test("GET /api/loans/:id devuelve 404 si no existe", async () => {
     const res = await request(app).get("/api/loans/no-existe");
     expect(res.status).toBe(404);
