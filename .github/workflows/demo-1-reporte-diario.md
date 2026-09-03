@@ -5,9 +5,8 @@ description: |
   de GitHub Agentic Workflows (gh-aw): no requiere código previo, solo lectura.
 
 on:
-  schedule:
-    - cron: "0 13 * * *"   # 09:00 America/Bogota / America/Mexico_City aprox.
-  workflow_dispatch:        # permite ejecutarlo manualmente desde Actions o `gh workflow run`
+  schedule: daily around 09:00 utc-5   # ~09:00 America/Bogota / America/Mexico_City, con dispersión de carga
+  workflow_dispatch:                    # permite ejecutarlo manualmente desde Actions o `gh workflow run`
 
 permissions:
   contents: read
