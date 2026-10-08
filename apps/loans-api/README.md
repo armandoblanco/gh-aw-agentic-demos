@@ -16,6 +16,7 @@ de tabla de amortización.
 | `POST` | `/api/loans` | Crea una nueva solicitud de préstamo |
 | `GET` | `/api/loans` | Lista todas las solicitudes |
 | `GET` | `/api/loans/:id` | Obtiene el detalle de una solicitud |
+| `DELETE` | `/api/loans/:id` | Cancela una solicitud pendiente |
 | `PATCH` | `/api/loans/:id/approve` | Aprueba una solicitud pendiente |
 | `PATCH` | `/api/loans/:id/reject` | Rechaza una solicitud pendiente |
 | `GET` | `/api/loans/:id/schedule` | Calcula la tabla de amortización |
@@ -48,4 +49,4 @@ npm test         # corre la suite de pruebas
 - `amount` debe ser mayor que 0.
 - `termMonths` debe estar entre 1 y 360.
 - `annualInterestRate` debe ser mayor o igual a 0.
-- Solo se puede aprobar/rechazar una solicitud en estado `PENDING_APPROVAL`.
+- Solo se puede aprobar/rechazar/cancelar una solicitud en estado `PENDING_APPROVAL`.

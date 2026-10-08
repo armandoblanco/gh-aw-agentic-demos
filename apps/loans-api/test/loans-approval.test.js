@@ -48,4 +48,30 @@ describe("Loans API — flujo de aprobación y rechazo", () => {
     const res = await request(app).patch("/api/loans/no-existe/approve");
     expect(res.status).toBe(404);
   });
+
+  test("DELETE cancela y elimina una solicitud pendiente", async () => {
+    const loan = await crearSolicitud();
+    const res = await request(app).delete(`/api/loans/${loan.id}`);
+
+    expect(res.status).toBe(204);
+    const lookup = await request(app).get(`/api/loans/${loan.id}`);
+    expect(lookup.status).toBe(404);
+  });
+
+  test("DELETE devuelve 404 si la solicitud no existe", async () => {
+    const res = await request(app).delete("/api/loans/no-existe");
+    expect(res.status).toBe(404);
+  });
+
+  test("DELETE no cancela una solicitud ya aprobada", async () => {
+    const loan = await crearSolicitud();
+    await request(app).patch(`/api/loans/${loan.id}/approve`);
+
+    const res = await request(app).delete(`/api/loans/${loan.id}`);
+    expect(res.status).toBe(409);
+    expect(res.body.error).toContain("APPROVED");
+
+    const lookup = await request(app).get(`/api/loans/${loan.id}`);
+    expect(lookup.status).toBe(200);
+  });
 });

@@ -45,6 +45,21 @@ router.get("/:id", (req, res) => {
   return res.json(loan);
 });
 
+// DELETE /api/loans/:id - cancela una solicitud pendiente
+router.delete("/:id", (req, res) => {
+  const loan = store.get(req.params.id);
+  if (!loan) {
+    return res.status(404).json({ error: "Solicitud de préstamo no encontrada" });
+  }
+  if (loan.status !== LOAN_STATUS.PENDING_APPROVAL) {
+    return res.status(409).json({
+      error: `No se puede cancelar una solicitud en estado ${loan.status}`,
+    });
+  }
+  store.delete(req.params.id);
+  return res.status(204).end();
+});
+
 // PATCH /api/loans/:id/approve - aprueba una solicitud pendiente
 router.patch("/:id/approve", (req, res) => {
   const loan = store.get(req.params.id);
