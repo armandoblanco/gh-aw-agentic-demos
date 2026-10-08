@@ -37,6 +37,10 @@ class LoanStore {
     return this.loans.get(id);
   }
 
+  delete(id) {
+    return this.loans.delete(id);
+  }
+
   updateStatus(id, status, extra = {}) {
     const loan = this.loans.get(id);
     if (!loan) return undefined;
