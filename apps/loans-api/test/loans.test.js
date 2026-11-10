@@ -73,3 +73,63 @@ describe("Loans API — creación y consulta de solicitudes", () => {
     expect(res.body).toHaveLength(1);
   });
 });
+
+describe("Loans API — tabla de amortización", () => {
+  const app = createApp();
+
+  beforeEach(() => {
+    store.clear();
+  });
+
+  async function crearSolicitudParaTabla() {
+    const res = await request(app).post("/api/loans").send({
+      customerId: "cust-200",
+      amount: 1200,
+      termMonths: 12,
+      annualInterestRate: 0.12,
+    });
+    return res.body;
+  }
+
+  test("GET /api/loans/:id/schedule usa FRENCH por defecto", async () => {
+    const loan = await crearSolicitudParaTabla();
+
+    const defaultRes = await request(app).get(`/api/loans/${loan.id}/schedule`);
+    const frenchRes = await request(app).get(
+      `/api/loans/${loan.id}/schedule?amortizationType=FRENCH`
+    );
+
+    expect(defaultRes.status).toBe(200);
+    expect(defaultRes.body.amortizationType).toBe("FRENCH");
+    expect(defaultRes.body.schedule).toHaveLength(12);
+    expect(defaultRes.body.schedule).toEqual(frenchRes.body.schedule);
+  });
+
+  test("GET /api/loans/:id/schedule soporta GERMAN con cuota decreciente", async () => {
+    const loan = await crearSolicitudParaTabla();
+
+    const res = await request(app).get(
+      `/api/loans/${loan.id}/schedule?amortizationType=GERMAN`
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.amortizationType).toBe("GERMAN");
+    expect(res.body.schedule).toHaveLength(12);
+    expect(res.body.schedule[0].principal).toBe(100);
+    expect(res.body.schedule[1].principal).toBe(100);
+    expect(res.body.schedule[0].payment).toBeGreaterThan(res.body.schedule[1].payment);
+    expect(res.body.schedule[1].payment).toBeGreaterThan(res.body.schedule[2].payment);
+    expect(res.body.schedule[11].remainingBalance).toBe(0);
+  });
+
+  test("GET /api/loans/:id/schedule valida amortizationType", async () => {
+    const loan = await crearSolicitudParaTabla();
+
+    const res = await request(app).get(
+      `/api/loans/${loan.id}/schedule?amortizationType=UNKNOWN`
+    );
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain("amortizationType");
+  });
+});

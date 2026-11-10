@@ -3,6 +3,65 @@ const { LoanStore, LOAN_STATUS } = require("../models/loanStore");
 
 const router = express.Router();
 const store = new LoanStore();
+const AMORTIZATION_TYPES = Object.freeze({
+  FRENCH: "FRENCH",
+  GERMAN: "GERMAN",
+});
+
+function roundToCents(value) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function buildFrenchSchedule({ amount, termMonths, annualInterestRate }) {
+  const monthlyRate = annualInterestRate / 12;
+  const schedule = [];
+  const basePayment =
+    monthlyRate === 0
+      ? amount / termMonths
+      : (amount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -termMonths));
+  let remainingBalance = amount;
+
+  for (let month = 1; month <= termMonths; month += 1) {
+    const interest = remainingBalance * monthlyRate;
+    const principal = month === termMonths ? remainingBalance : basePayment - interest;
+    const payment = principal + interest;
+    remainingBalance -= principal;
+
+    schedule.push({
+      installment: month,
+      payment: roundToCents(payment),
+      principal: roundToCents(principal),
+      interest: roundToCents(interest),
+      remainingBalance: roundToCents(remainingBalance),
+    });
+  }
+
+  return schedule;
+}
+
+function buildGermanSchedule({ amount, termMonths, annualInterestRate }) {
+  const monthlyRate = annualInterestRate / 12;
+  const schedule = [];
+  const basePrincipal = amount / termMonths;
+  let remainingBalance = amount;
+
+  for (let month = 1; month <= termMonths; month += 1) {
+    const interest = remainingBalance * monthlyRate;
+    const principal = month === termMonths ? remainingBalance : basePrincipal;
+    const payment = principal + interest;
+    remainingBalance -= principal;
+
+    schedule.push({
+      installment: month,
+      payment: roundToCents(payment),
+      principal: roundToCents(principal),
+      interest: roundToCents(interest),
+      remainingBalance: roundToCents(remainingBalance),
+    });
+  }
+
+  return schedule;
+}
 
 function validateLoanInput({ customerId, amount, termMonths, annualInterestRate }) {
   const errors = [];
@@ -43,6 +102,32 @@ router.get("/:id", (req, res) => {
     return res.status(404).json({ error: "Solicitud de préstamo no encontrada" });
   }
   return res.json(loan);
+});
+
+// GET /api/loans/:id/schedule - calcula tabla de amortización
+router.get("/:id/schedule", (req, res) => {
+  const loan = store.get(req.params.id);
+  if (!loan) {
+    return res.status(404).json({ error: "Solicitud de préstamo no encontrada" });
+  }
+
+  const amortizationType = req.query.amortizationType || AMORTIZATION_TYPES.FRENCH;
+  if (!Object.values(AMORTIZATION_TYPES).includes(amortizationType)) {
+    return res.status(400).json({
+      error: "amortizationType debe ser FRENCH o GERMAN",
+    });
+  }
+
+  const schedule =
+    amortizationType === AMORTIZATION_TYPES.GERMAN
+      ? buildGermanSchedule(loan)
+      : buildFrenchSchedule(loan);
+
+  return res.json({
+    loanId: loan.id,
+    amortizationType,
+    schedule,
+  });
 });
 
 // PATCH /api/loans/:id/approve - aprueba una solicitud pendiente

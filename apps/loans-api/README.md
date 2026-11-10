@@ -18,7 +18,7 @@ de tabla de amortización.
 | `GET` | `/api/loans/:id` | Obtiene el detalle de una solicitud |
 | `PATCH` | `/api/loans/:id/approve` | Aprueba una solicitud pendiente |
 | `PATCH` | `/api/loans/:id/reject` | Rechaza una solicitud pendiente |
-| `GET` | `/api/loans/:id/schedule` | Calcula la tabla de amortización |
+| `GET` | `/api/loans/:id/schedule` | Calcula la tabla de amortización (`amortizationType=FRENCH\|GERMAN`, por defecto `FRENCH`) |
 
 ## Modelo de una solicitud de préstamo
 
